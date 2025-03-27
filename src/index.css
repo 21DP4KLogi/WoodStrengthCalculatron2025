@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  background-color: #404040;
+}
+#menu {
+  background-color: #ffffffcc;
+  padding: 1rem;
+  position: fixed;
+  left: 10%;
+  top: 50%;
+  transform: translate(0%, -50%);
+  border: 1px, #000;
+  border-radius: 0.5rem;
+  h1 {
+    margin: 0;
+  }
+}
