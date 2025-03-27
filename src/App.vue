@@ -19,6 +19,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import * as THREE from 'three';
+import textureImage from './texture_09.png';
 
 const garums = ref(6);
 const platums = ref(0.1);
@@ -41,7 +42,9 @@ document.body.appendChild( renderer.domElement );
 
 const geometry = new THREE.BoxGeometry(platums.value, augstums.value, garums.value)
 
-const texture = new THREE.TextureLoader().load( "/src/texture_09.png" );
+const texture = new THREE.TextureLoader().load( textureImage, () => {
+  renderer.render( scene, camera );
+});
 //texture.repeat.set( 8, 8 );
 texture.wrapS = THREE.RepeatWrapping;
 texture.wrapT = THREE.RepeatWrapping;
