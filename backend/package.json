@@ -2,7 +2,11 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
+    "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
     "postgres": "^3.4.5"
+  },
+  "scripts": {
+    "start": "node --env-file=.env index.js"
   }
 }
