@@ -29,6 +29,7 @@ async function initdb() {
       length double precision,
       width double precision,
       height double precision,
+      strength double precision,
       result double precision,
       userid integer,
       PRIMARY KEY(id),
@@ -46,20 +47,21 @@ app.use(cookieParser())
 
 async function authCookieValid(cookie) {
   if (cookie === undefined) {
-    return false
+    return -1
   }
   const tokenBearer = await psql`
     SELECT * FROM users WHERE token = ${cookie};
   `
   if (tokenBearer.length === 1) {
-    return true
+    return tokenBearer[0].id
   } else {
-    return false
+    return -1
   }
 }
 
 app.post('/calculate', async (req, res) => {
-  if (!await authCookieValid(req.cookies.auth)) {
+  let tokenBearerId = await authCookieValid(req.cookies.auth)
+  if (tokenBearerId === -1) {
     res.status(401)
     res.send()
     return
@@ -70,6 +72,17 @@ app.post('/calculate', async (req, res) => {
   const sentStrength = req.body.strength
   const pretestibasMoments = (sentWidth * sentHeight ** 2) / 6
   const pielaujamaSlodze = 8 * pretestibasMoments * (sentStrength / (sentLength ** 2))
+  await psql`
+    INSERT INTO calculations VALUES (
+      default,
+      ${sentLength},
+      ${sentWidth},
+      ${sentHeight},
+      ${sentStrength},
+      ${pielaujamaSlodze},
+      ${tokenBearerId}
+    )
+  `
   res.send(pielaujamaSlodze)
 })
 
@@ -94,15 +107,15 @@ app.post('/login', async (req, res) => {
     await psql`
       UPDATE users SET token = ${cookieData} WHERE name = ${req.body.name};
     `
-    res.send('Aye!')
+    res.send()
   } else {
     res.status(400)
-    res.send('Nay.')
+    res.send()
   }
 })
 
 app.post('/checkauth', async (req, res) => {
-  if (await authCookieValid(req.cookies.auth)) {
+  if (await authCookieValid(req.cookies.auth) !== -1) {
     res.send()
   } else {
     res.status(401)
