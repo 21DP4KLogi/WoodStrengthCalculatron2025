@@ -1,12 +1,13 @@
 <template>
   <div id="authmenu" v-if="!authenticated">
+    <h1>WoodStrengthCalculatron2025</h1>
     <span>Lietotājvārds </span>
     <input v-model="username" /> <br>
     <span>Parole </span>
     <input v-model="password" type="password" /> <br>
     <button @click="auth()">Pieslēgties</button>
   </div>
-  <div id="menu" v-else>
+  <div id="menu" v-if="authenticated">
     <h1>WoodStrengthCalculatron2025</h1>
     <span>Sijas garums </span>
     <input v-model="garums" /> <br>
@@ -19,6 +20,28 @@
     <!-- <p>Pretestības moments: <span>{{ pretestibasMoments }}</span></p> -->
     <p>Pieļaujamā slodze: <span>{{ pielaujamaSlodze }}</span> KN/m</p>
     <button @click="calculate()">Aprēķināt</button>
+  </div>
+  <div id="calchistory" v-if="authenticated">
+    <table>
+      <tbody>
+        <tr>
+          <th>Garums</th>
+          <th>Platums</th>
+          <th>Augstums</th>
+          <th>Stiprība</th>
+          <th>Rezultāts</th>
+        </tr>
+        <template v-for="calc in history">
+          <tr>
+            <td>{{ calc.length }}</td>
+            <td>{{ calc.width }}</td>
+            <td>{{ calc.height }}</td>
+            <td>{{ calc.strength }}</td>
+            <td>{{ calc.result }}</td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -37,6 +60,7 @@ const platums = ref(0.1);
 const augstums = ref(0.3);
 const stipriba = ref(20000);
 const pielaujamaSlodze = ref(0);
+const history = ref([]);
 
 const username = ref("")
 const password = ref("")
@@ -54,6 +78,7 @@ async function checkauth() {
     credentials: "include"
   })
   authenticated.value = response.status === 200
+  history.value = JSON.parse(await response.text())
 }
 
 checkauth()
@@ -88,7 +113,15 @@ async function calculate() {
       })
     }
   )
-  pielaujamaSlodze.value = await response.text();
+  const result = await response.text();
+  pielaujamaSlodze.value = result;
+  history.value.push({
+    "strength": stipriba.value,
+    "length": garums.value,
+    "width": platums.value,
+    "height": augstums.value,
+    "result": result
+  })
 }
 
 // Three.js

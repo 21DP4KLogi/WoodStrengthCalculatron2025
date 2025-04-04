@@ -1,6 +1,7 @@
 body {
   margin: 0;
   background-color: #404040;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 #authmenu {
   background-color: #eeed;
@@ -11,8 +12,9 @@ body {
   transform: translate(0%, -50%);
   border: 1px, #000;
   border-radius: 0.5rem;
-  h1 {
+  > h1 {
     margin: 0;
+    margin-bottom: 0.5rem;
   }
 }
 #menu {
@@ -24,7 +26,31 @@ body {
   transform: translate(0%, -50%);
   border: 1px, #000;
   border-radius: 0.5rem;
-  h1 {
+  > h1 {
     margin: 0;
+    margin-bottom: 0.5rem;
+  }
+  > input {
+    margin: 0.1rem 0;
+  }
+}
+#calchistory {
+  background-color: #222d;
+  color: white;
+  padding: 1rem;
+  position: fixed;
+  left: 10%;
+  top: 70%;
+  max-height: 20vh;
+  overflow-y: scroll;
+  /* transform: translate(0%, -50%); */
+  border: 1px, #000;
+  border-radius: 0.5rem;
+  > table {
+    border-collapse: collapse;
+    th, td {
+      border: solid 1px white;
+      padding: 3px;
+    }
   }
 }

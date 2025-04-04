@@ -121,8 +121,12 @@ app.post('/login', cors(corsOptions), async (req, res) => {
 })
 
 app.get('/checkauth', cors(corsOptions), async (req, res) => {
-  if (await authCookieValid(req.cookies.auth) !== -1) {
-    res.send()
+  let tokenBearerId = await authCookieValid(req.cookies.auth)
+  if (tokenBearerId !== -1) {
+    let calchistory = await psql`
+      SELECT length, width, height, strength, result FROM calculations WHERE userid = ${tokenBearerId};
+    `
+    res.send(calchistory)
   } else {
     res.status(401)
     res.send()
