@@ -1,5 +1,12 @@
 <template>
-  <div id="menu">
+  <div id="authmenu" v-if="!authenticated">
+    <span>Lietotājvārds </span>
+    <input v-model="username" /> <br>
+    <span>Parole </span>
+    <input v-model="password" type="password" /> <br>
+    <button @click="auth()">Pieslēgties</button>
+  </div>
+  <div id="menu" v-else>
     <h1>WoodStrengthCalculatron2025</h1>
     <span>Sijas garums </span>
     <input v-model="garums" /> <br>
@@ -11,6 +18,7 @@
     <input v-model="stipriba" /> <br>
     <!-- <p>Pretestības moments: <span>{{ pretestibasMoments }}</span></p> -->
     <p>Pieļaujamā slodze: <span>{{ pielaujamaSlodze }}</span> KN/m</p>
+    <button @click="calculate()">Aprēķināt</button>
   </div>
 </template>
 
@@ -21,16 +29,67 @@ import { ref, computed, watch } from 'vue';
 import * as THREE from 'three';
 import textureImage from './texture_09.png';
 
+const URL = "http://localhost:3000"
+
+const authenticated = ref(false);
 const garums = ref(6);
 const platums = ref(0.1);
 const augstums = ref(0.3);
 const stipriba = ref(20000);
+const pielaujamaSlodze = ref(0);
+
+const username = ref("")
+const password = ref("")
+/*
 const pretestibasMoments = computed(() => { 
   return (platums.value * augstums.value ** 2) / 6;
 });
 const pielaujamaSlodze = computed(() => {
   return 8 * pretestibasMoments.value * ((stipriba.value) / (garums.value ** 2))
 });
+*/
+
+async function checkauth() {
+  const response = await fetch(URL + "/checkauth", {
+    credentials: "include"
+  })
+  authenticated.value = response.status === 200
+}
+
+checkauth()
+
+async function auth() {
+  const response = await fetch(
+    URL + "/login",
+    {
+      method: "POST",
+      //mode: "no-cors",
+      credentials: "include",
+      body: new URLSearchParams({
+        "pass": password.value,
+        "name": username.value
+      })
+    }
+  )
+  checkauth()
+}
+
+async function calculate() {
+  const response = await fetch(
+    URL + "/calculate",
+    {
+      method: "POST",
+      credentials: "include",
+      body: new URLSearchParams({
+        "strength": stipriba.value,
+        "length": garums.value,
+        "width": platums.value,
+        "height": augstums.value
+      })
+    }
+  )
+  pielaujamaSlodze.value = await response.text();
+}
 
 // Three.js
 const scene = new THREE.Scene();

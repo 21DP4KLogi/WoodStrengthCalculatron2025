@@ -4,6 +4,7 @@ const postgres = require('postgres')
 const bcrypt = require('bcrypt')
 const cookieParser = require('cookie-parser')
 const crypto = require('node:crypto')
+const cors = require('cors')
 
 const psql = postgres({
   host: process.env.DB_HOST ?? "localhost",
@@ -44,6 +45,11 @@ initdb()
 const app = express()
 app.use(bodyParser.urlencoded())
 app.use(cookieParser())
+app.use(cors())
+const corsOptions = {
+  origin: "http://localhost:5173",
+  credentials: true,
+}
 
 async function authCookieValid(cookie) {
   if (cookie === undefined) {
@@ -59,7 +65,7 @@ async function authCookieValid(cookie) {
   }
 }
 
-app.post('/calculate', async (req, res) => {
+app.post('/calculate', cors(corsOptions), async (req, res) => {
   let tokenBearerId = await authCookieValid(req.cookies.auth)
   if (tokenBearerId === -1) {
     res.status(401)
@@ -86,7 +92,7 @@ app.post('/calculate', async (req, res) => {
   res.send(pielaujamaSlodze)
 })
 
-app.post('/login', async (req, res) => {
+app.post('/login', cors(corsOptions), async (req, res) => {
   const passwordHash = await psql`
     SELECT password FROM users WHERE name = ${req.body.name};
   `
@@ -99,10 +105,10 @@ app.post('/login', async (req, res) => {
   if (passwordMatch) {
     let cookieData = crypto.randomBytes(12).toString('base64')
     res.cookie("auth", cookieData, {
-      maxAge: 1000*60*60,
+      maxAge: 1000*60*60*24,
       httpOnly: true,
       secure: true,
-      sameSite: "strict"
+      sameSite: "none"
     })
     await psql`
       UPDATE users SET token = ${cookieData} WHERE name = ${req.body.name};
@@ -114,7 +120,7 @@ app.post('/login', async (req, res) => {
   }
 })
 
-app.post('/checkauth', async (req, res) => {
+app.get('/checkauth', cors(corsOptions), async (req, res) => {
   if (await authCookieValid(req.cookies.auth) !== -1) {
     res.send()
   } else {

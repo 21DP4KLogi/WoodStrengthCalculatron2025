@@ -2,8 +2,21 @@ body {
   margin: 0;
   background-color: #404040;
 }
+#authmenu {
+  background-color: #eeed;
+  padding: 1rem;
+  position: fixed;
+  left: 10%;
+  top: 50%;
+  transform: translate(0%, -50%);
+  border: 1px, #000;
+  border-radius: 0.5rem;
+  h1 {
+    margin: 0;
+  }
+}
 #menu {
-  background-color: #ffffffcc;
+  background-color: #fffc;
   padding: 1rem;
   position: fixed;
   left: 10%;
